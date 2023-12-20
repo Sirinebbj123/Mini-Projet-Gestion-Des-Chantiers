@@ -1,0 +1,403 @@
+#include<stdio.h>
+#include<stdlib.h>
+#include<string.h>
+
+typedef struct{
+  int num;
+  char codeop[20];
+  float cout;
+  int main_deuvre;
+  int temp_op;
+} traveau;
+
+typedef struct{
+  traveau info;
+  struct structnoeud *suivant;
+} structnoeud;
+typedef structnoeud *NOEUD;
+
+typedef struct{
+ int lg;
+ NOEUD tete;
+} structlist;
+typedef structlist *liste;
+
+liste listecreer ()
+{
+    liste l=(liste)malloc (sizeof(structlist));
+    if (!l) printf("\n probleme de memoire \n");
+    else
+       {
+        l->lg=0;
+        l->tete=NULL;}
+        return l;
+}
+
+NOEUD noeudcreer(traveau t)
+{
+    NOEUD n=(NOEUD) malloc(sizeof(structnoeud));
+    if(!n) printf("\n probleme de memoire \n");
+    else
+    {
+        n->info=t;
+        n->suivant=NULL;
+    }
+    return n;
+}
+
+
+int estsaturee(liste l)
+{
+    NOEUD temp;
+    int saturee=1; /* memoire saturée*/
+    temp=(NOEUD)malloc(sizeof(structnoeud));
+    if(temp!=NULL)
+    {saturee=0; /*memoire non saturee*/
+    free(temp);}
+    return saturee;
+}
+
+traveau saisir()
+{ traveau t;
+int p; liste l;
+
+
+printf("\n code operation:");
+scanf("%s",&t.codeop);
+
+do
+{
+printf("\n cout :");
+scanf("%f",&t.cout);
+}while(t.cout==0);
+
+do{
+    printf("\n main d''oeuvre: ");
+    scanf("%d",&t.main_deuvre) ;
+}while(t.main_deuvre==0);
+
+do{
+ printf("\n temp opératoire:");
+ scanf("%d",&t.temp_op);
+} while(t.temp_op==0);
+return t;
+}
+
+int recherche (liste l,char s[])
+{ int pos=0;
+ NOEUD p=l->tete;
+int i=1;
+while (p!=NULL && pos==0)
+{
+if (strcmp(p->info.codeop,s)==0)
+pos = i ;
+else
+    { p=p->suivant ;
+
+i++;
+}
+}
+return pos;
+}
+
+
+
+int inserer(liste l,traveau t,int pos)
+{
+    int succes=1,i,poss;
+    NOEUD p,q,n;
+   n=noeudcreer(t);
+   if(estsaturee(l))
+    {printf(" plus d'espace \n");
+     succes=0;}
+      else if((pos<1)||(pos>l->lg+1))
+   {printf("position Invalide \n");
+       succes=0;
+   }
+   else
+   {   poss=recherche(l,t.codeop) ;
+       if(poss!=0)
+       {
+            p=l->tete;
+        for(i=1;i<poss;i++)
+        {
+            p=p->suivant;
+        }
+        q=p->suivant;
+         n->suivant=q;
+         p->suivant=n;
+       }
+       else if(pos==1)
+        {
+     l->tete=n->suivant;
+     l->tete=n;}
+      else
+     { p=l->tete;
+       for(i=1;i<pos-1;i++,p=p->suivant);
+       q=p->suivant;
+       n->suivant=q;
+       p->suivant=n;
+
+     }
+     l->lg++;
+   }
+   return succes;
+}
+
+void remplir(liste l,int n)
+{ int i,p; traveau t;
+int  x=1;
+ for(i=1;i<=n;i++)
+ {
+     printf("numero : %d\n",i);
+
+     t=saisir();
+     t.num=x;
+     x++;
+     inserer(l,t,l->lg+1);
+
+ }
+}
+
+
+
+int supprimer(liste l,int pos)
+{ NOEUD p,q; int succes=1;int i;
+ if(l==NULL)
+ {printf("liste vide \n");
+  succes=0;}
+  else {
+    if ((pos < 1) || (pos > l->lg))
+{
+printf ("\n Position invalide");
+succes=0;
+
+}
+  else
+{  p=l->tete;
+  if (pos==1)
+  l->tete=p->suivant;
+  else{
+for (i=1;i<pos;i++) {
+p=q;
+q = q->suivant;
+}
+p->suivant=q->suivant;
+}
+free(q);
+  }
+l->lg--;
+}
+
+return succes;
+}
+void affichetr(traveau t)
+{
+ printf(" num : %d \n",t.num);
+ printf(" code opération : %s \n ",t.codeop);
+ printf(" cout : %f \n",t.cout);
+ printf(" main d'oeuvre: %d\n",t.main_deuvre);
+ printf("temp opératoire:%d\n",t.temp_op) ;
+
+}
+void afficherliste(liste l)
+{  traveau t;
+   NOEUD p;
+ if(l==NULL)
+    printf("liste vide");
+    else
+        {
+        p=l->tete;
+    while(p!=NULL)
+    {
+       affichetr(p->info);
+        p=p->suivant;
+    }
+    }
+}
+int existe(liste l,char s[])
+{ NOEUD p=l->tete;
+ int test=0;
+ while((p!=NULL )||(test==0))
+ { if(strcmp(p->info.codeop,s)==0)
+    test=1;
+    p=p->suivant;
+ }
+return test;
+}
+
+ NOEUD rechercheseq(NOEUD p,char s[])
+{
+    if(p==NULL)
+        return NULL;
+   else if(strcmp(p->info.codeop,s)==0)
+        return p;
+   else
+    return rechercheseq(p->suivant,s);
+}
+
+void ajoutfin (liste l,traveau t)
+{
+    NOEUD n=noeudcreer(t);
+    NOEUD p=l->tete;
+    if(l->lg==0)
+        inserer(l,t,1);
+    else{
+        for(p=l->tete;p->suivant!=NULL;p=p->suivant);
+        p->suivant=n;
+        l->lg++;
+    }
+}
+
+void quess3(liste l,char codenv[])
+{
+    NOEUD p=l->tete;
+
+}
+
+int ajout_operation(liste l,traveau t1)
+{ int succee=0; NOEUD p=l->tete; int k=1;
+while((p!=NULL)&&(succee==0))
+{
+if (strcmp(p->info.codeop,t1.codeop)==0)
+    {
+    inserer(l,t1,k);
+    succee=1;
+    }
+else
+    {
+   p=p->suivant;
+   k++;
+    }
+
+
+}
+ return succee ;
+}
+int estvide(liste l)
+{
+    return (l->lg==0);
+}
+traveau recuperer(liste l,int pos)
+{
+    int i; traveau t;
+    NOEUD p;
+    if(estvide) printf("liste vide");
+    else {
+            if((pos<1)||(pos>l->lg))
+            printf("postion invalide");
+
+    else{
+
+        p=l->tete;
+        for(i=1;i<pos;i++)
+            p=p->suivant;
+        t=p->info;
+    }
+    }
+    return t;
+}
+
+liste copier(liste l)
+{
+    liste l1=listecreer();
+    int i; traveau t;
+    for(i=1;i<=l->lg;i++)
+    {
+        t=recuperer(l,i);
+        inserer(l1,t,i);
+    }
+    return l1;
+    }
+
+
+
+ liste  aff_liste_trav(liste l1,char op[])
+ { NOEUD p=l1->tete;
+ NOEUD q=p->suivant;  int k=1;
+  while(p!=NULL)
+  {
+
+        if(strcmp(p->info.codeop,q->info.codeop)!=0)
+           supprimer(l1,k);
+           else
+           {
+
+            p=p->suivant; k++;
+           }
+         }
+        return l1;
+     }
+
+// liste jdida
+liste ex_6(liste l,char op[],int n)
+{ NOEUD p=l->tete; NOEUD q=p->suivant;
+ liste  l1=listecreer();
+  for(int  i=1;i<=n;i++)
+  {
+      if((strcmp(p->info.codeop,op)==0)&& (strcmp(p->info.codeop,q->info.codeop)==0))
+      inserer(l1,p->info,i);
+
+  }
+  return l1;
+
+}
+char max(liste l,int n)
+{ NOEUD p=l->tete;
+  char ch1[20];
+    int maxx=p->info.temp_op;
+    for(int i=2;i<=n;i++)
+    {
+        if(p->info.temp_op>max)
+            maxx=p->info.temp_op;
+            strcpy(p->info.codeop,ch1);
+    }
+    return  ch1;
+
+}
+
+void main()
+{ liste l=listecreer(); liste l1;
+  traveau t; char code[20],codenv[20];
+  int n,i; NOEUD p,adress; traveau t1; int b; liste l3;
+  do
+  {
+   printf("\n combien de traveaux voulez vous inserer \n");
+   scanf("%d",&n);
+  }while(n==0);
+
+ remplir(l,n);
+
+printf("affichage de liste :\n");
+afficherliste(l);
+do{
+    printf("saisir le code de la sequence a chercher \n");
+    scanf("%s",code);
+}while (strlen(code)==0);
+printf("la sequence chercher %s est a la postion %p ",code,rechercheseq(l->tete,code));
+ printf("\n*****ajout d'une operation******\n");
+ t1=saisir();
+ b=ajout_operation(l,t1);
+ if(b==1)
+ afficherliste(l);
+ else
+    ajoutfin(l,t1); afficherliste(l);
+
+
+
+printf("\n****donner le code de sequence que je doit inserer sa sequence dans une autre liste***\n");
+do{
+    printf("saisir le code de la sequence a chercher \n");
+    scanf("%s",code);
+}while (strlen(code)==0);
+ printf("\n***** liste L3 :*****\n");
+l3=ex_6(l,code,n);
+if (l3->lg!=0)
+
+afficherliste(l3);
+else
+printf("pas de sequence de ce code operation");
+printf("\n*** max temps operatoire**\n");
+printf("le code operation ayant le temps le plus eleve est :%s",max(l,n));
+
+}
